@@ -51,3 +51,9 @@ class UserManager(BaseUserManager):
         **Used to return boolean value on the basis of email exists in a user table.**\n
         """
         return self.filter(email= email).exists()
+    
+    def usernameExists(self, username):
+        """
+        **Used to return boolean value on the basis of username exists in a user table.**\n
+        """
+        return self.filter(username= username).exists()

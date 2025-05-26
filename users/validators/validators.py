@@ -66,6 +66,8 @@ class NameValidator:
         ValidationError
             If the name fails any of the validation criteria.
         """
+        if User.objects.usernameExists(name):
+            raise serializers.ValidationError('Username already exists')
         for regex, error_message in self.rules:
             test = regex.search(name)
             if not regex.search(name):
@@ -168,3 +170,19 @@ class UidValidator:
         
     def __call__(self, uid):
         self.userExistUid(uid)
+
+
+class ForgotPasswordEmailValidator:
+    """
+    **Used to check the email is exists or not.**\n
+    Input:
+        email : str type. 
+    """
+
+    def userExistEmail(self, email):
+        if not User.objects.filter(email= email).exists():
+            raise NotFound(f'User not found with email : {email}')
+        
+    def __call__(self, email):
+        self.userExistEmail(email)
+        

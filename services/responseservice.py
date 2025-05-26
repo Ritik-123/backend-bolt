@@ -42,5 +42,5 @@ class FailureResponse(BaseResponse):
         return self.response()
 
     def response(self):
-        return Response(message= self.message, status= self.status_code)    
+        return Response(message= self.message, status= self.status_code) 
     

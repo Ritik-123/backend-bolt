@@ -32,7 +32,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'drf_standardized_errors',
-    'drf_spectacular'
+    'drf_spectacular',
+    'django_celery_beat',
 ]
 
 PROJECT_APPS = ['users']
@@ -47,7 +48,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    # 'middleware.loggingmiddleware'
+    'middleware.loggingmiddleware.LogRestMiddleware',
 ]
 
 ROOT_URLCONF = 'backend_bolt.urls'
@@ -179,3 +180,26 @@ SPECTACULAR_SETTINGS = {
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
 }
+
+EMAIL_BACKEND = os.getenv('EMAIL_BACKEND')   #'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = os.getenv('EMAIL_HOST') # 'sandbox.smtp.mailtrap.io'  'smtp.gmail.com'
+EMAIL_PORT = os.getenv('EMAIL_PORT') # 587
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS') # True
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER') #  '75783219c1923e'
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD') # 'bad0bcf76b8bdf'
+
+CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL') # "redis://localhost:6379/0" # 'redis://redis:6379/0'
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+CELERY_BEAT_SYNC_ON_STARTUP = False
+
+# LOG_DIR = os.path.join(BASE_DIR, 'logs')
+# ARC_DIR= os.path.join(BASE_DIR, 'archive')
+
+# os.makedirs(LOG_DIR, exist_ok= True)
+# os.makedirs(ARC_DIR, exist_ok= True)
+
+from users.log import LOGGING_DICT
+LOGGING_CONFIG = 'logging.config.dictConfig'
+LOGGING = LOGGING_DICT

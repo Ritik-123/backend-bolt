@@ -1,0 +1,25 @@
+export SECRET_KEY="django-insecure-t&e=3!z+m_^q@khmqc)%@i02!yt^rd#yg%a!&)-5gkr+=%uuy@"
+export ADMIN_USERNAME="admin"
+export ADMIN_EMAIL="admin@gmail.com"
+export ADMIN_PASSWORD="123"
+
+# Database configuration
+export DB_HOST="localhost"
+export DB_NAME="bolt"
+export DB_USER="postgres"
+export DB_PASSWORD="123"
+export DB_PORT="5432" # 6432
+
+# SMTP configuration
+export EMAIL_BACKEND='django.core.mail.backends.smtp.EmailBackend'
+export EMAIL_HOST='sandbox.smtp.mailtrap.io'  'smtp.gmail.com'
+export EMAIL_PORT=587
+export EMAIL_USE_TLS=True
+export EMAIL_HOST_USER='75783219c1923e'
+export EMAIL_HOST_PASSWORD='bad0bcf76b8bdf'
+
+# Celery redis
+export CELERY_BROKER_URL='redis://localhost:6379/0' # for docker 'redis://redis:6379/0'
+
+# KAFKA SERVERS:
+export BOOTSTRAP_SERVERS='localhost:9092' # for docker: 'kafka:9092'

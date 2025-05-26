@@ -20,14 +20,8 @@ class ContextFilter(logging.Filter):
         return True
 
 
-
-# Getting the logger defined in customlog.py
-# _logger = logging.getLogger('api_fuzzer')
 _logger= logging.getLogger('access')
 _logger.propagate = False
-
-
-
 
 class LogRestMiddleware(MiddlewareMixin):
     """
@@ -77,7 +71,8 @@ class LogRestMiddleware(MiddlewareMixin):
         """Method call when the middleware is used in the `MIDDLEWARE_CLASSES` option in the settings."""
         self._log_request(request)
         self._log_response(request, response)
-        return response
+        return response# Getting the logger defined in customlog.py
+# _logger = logging.getLogger('api_fuzzer')
 
     def __call__(self, request):
         """Method call when the middleware is used in the `MIDDLEWARE` option in the settings """

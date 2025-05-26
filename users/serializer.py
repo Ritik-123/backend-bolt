@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from users.models import User
+from users.models import User, SensorData
 from users.validators.validators import *
 
 
@@ -40,3 +40,14 @@ class UserListSerializer(serializers.ModelSerializer):
     class Meta:
         model= User
         fields= ['id', 'username', 'email', 'is_active']
+
+
+# Serializer used in kafka consumer
+
+class SensorDataSerializer(serializers.ModelSerializer):
+    """
+    **Used to serialize the sensor data.**
+    """
+    class Meta:
+        model = SensorData
+        fields = '__all__'

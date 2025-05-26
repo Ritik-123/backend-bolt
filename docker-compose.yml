@@ -1,5 +1,31 @@
 services:
-  
+
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  kafka:
+    image: apache/kafka:latest
+    container_name: kafka
+    ports:
+      - "9092:9092"
+      - "9093:9093"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://kafka:9092,CONTROLLER://kafka:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_NUM_PARTITIONS: 3     
+
   db:
     image: postgres
     environment:
@@ -7,11 +33,8 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: bolt
     container_name: database
-    # network_mode: host
-    networks:
-      - my-network
-    # ports:
-    #   - 5432:5432
+    ports:
+      - 5432:5432
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres"]
       timeout: 20s
@@ -27,12 +50,21 @@ services:
     - DB_NAME=bolt
     - DB_USER=postgres
     - DB_PASSWORD=postgres
+    - SECRET_KEY=django-insecure-t&e=3!z+m_^q@khmqc)%@i02!yt^rd#yg%a!&)-5gkr+=%uuy@
+    # SMTP configuration
+    - EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
+    - EMAIL_HOST=sandbox.smtp.mailtrap.io
+    - EMAIL_PORT=587
+    - EMAIL_USE_TLS=True
+    - EMAIL_HOST_USER=75783219c1923e
+    - EMAIL_HOST_PASSWORD=bad0bcf76b8bdf
+    # Celery redis configuration
+    - CELERY_BROKER_URL=redis://redis:6379/0
+    # for kafka bootstrap servers
+    - BOOTSTRAP_SERVERS=kafka:9092
 
     build: ./
     container_name: users
-    # network_mode: host
-    networks:
-      - my-network
     ports:
       - 8000:8000
     depends_on:
@@ -41,5 +73,4 @@ services:
     stdin_open: true
     tty: true
 
-networks:
-  my-network:
+  
