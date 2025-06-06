@@ -1,3 +1,6 @@
+# To run daphne server
+daphne -b 0.0.0.0 -p 8000 backend_bolt.asgi:application
+
 export SECRET_KEY="django-insecure-t&e=3!z+m_^q@khmqc)%@i02!yt^rd#yg%a!&)-5gkr+=%uuy@"
 export ADMIN_USERNAME="admin"
 export ADMIN_EMAIL="admin@gmail.com"

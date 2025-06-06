@@ -78,6 +78,7 @@ class CustomExceptionFormatter(ExceptionFormatter):
         exception_type, exception_object, exception_traceback = sys.exc_info()
         filename = exception_traceback.tb_frame.f_code.co_filename
         line_number = exception_traceback.tb_lineno
+        # logger.info(f"Type -: {error_response.type} - Message: {error.detail} - Field: {error.attr} - Status: {self.exc.status_code} Filename :{filename} Line Number: {line_number} - Exception:{str(self.exc)}")
         logger.exception(f"Type -: {error_response.type} - Message: {error.detail} - Field: {error.attr} - Status: {self.exc.status_code} Filename :{filename} Line Number: {line_number} - Exception:{str(self.exc)}")
         return {
             "type": error_response.type,

@@ -95,57 +95,36 @@ class ForgotPasswordView(APIView):
     """
     **API is used to set password if user forgot it's old password.**\n
     """
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         email = request.data.get("email")
-        if not email:
-            raise serializers.ValidationError("Email is required")
         ForgotPasswordEmailValidator()(email)
-        
-        # existing_otp = PasswordResetOTP.objects.filter(email=email).order_by("-created_at").first()
-        existing_otp = PasswordResetOTP.objects.filter(email=email).first()
-
-        if existing_otp:
-            expiry_time = existing_otp.created_at + timedelta(minutes=10)
-            if timezone.now() < expiry_time:
-                raise serializers.ValidationError("OTP already sent, please check your email")
-            else:
-                existing_otp.delete()
-
-        otp = generate_otp()
+        CheckUserPermission()(request.user, User.objects.get(email=email).id)
+        otp= generate_otp()
         PasswordResetOTP.objects.create(email=email, otp=otp)
         username= User.objects.get(email=email).username
         if send_otp_email(username, email, otp):
             return SuccessResponse(data={"message": "OTP sent to your email"}, status_code=200)()
-        return FailureResponse(message="Failed to send OTP", status_code=400)()
-
-
+        raise serializers.ValidationError("Failed to send OTP")
+    
 class VerifyOTPView(APIView):
 
     """
     **API is used to verify the OTP.**\n
     """
     permission_classes = [IsAuthenticated]
+    
     def post(self, request):
-        email = request.data.get("email")
-        otp = request.data.get("otp")
 
-        if not email or not otp:
-            raise serializers.ValidationError("Email and OTP both are required")
-        
-        ForgotPasswordEmailValidator()(email)
-
-        # record = PasswordResetOTP.objects.filter(email=email, otp=otp).latest("created_at")        
-        record = PasswordResetOTP.objects.filter(email=email, otp=otp).first()
-        if not record:
-            raise NotFound("OTP is not register for this email, please register first")
-
-        if record.is_expired():
-            record.delete()
-            raise serializers.ValidationError("OTP has expired")
-
-        record.is_verified = True
-        record.save()
+        serializer= VerifyOTPSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            CheckUserPermission()(request.user, User.objects.get(email=serializer.validated_data.get('email').id))
+            # Update the OTP record to mark it as verified
+            serializer.update(instance=serializer.instance)
+        else:
+            logger.info(f"OTP verification failed: {serializer.errors}")
+            raise serializers.ValidationError('OTP verification failed')
         return SuccessResponse(data={"message": "OTP verified"}, status_code=200)()
         
 
@@ -161,19 +140,20 @@ class ResetPasswordView(APIView):
 
         if not email or not new_password:
             raise serializers.ValidationError("Email and new password both are required")
-
-        ForgotPasswordEmailValidator()(email)
-        PasswordValidator()(new_password)
+        userExistEmail(email)
+        # ForgotPasswordEmailValidator()(email)
         # Check if OTP was verified
-        record = PasswordResetOTP.objects.filter(email=email, is_verified=True).latest("created_at")
-        if not record:
-            raise serializers.ValidationError("OTP not verified or expired")
+        # record = PasswordResetOTP.objects.filter(email=email, is_verified=True).latest("created_at")
+        record = PasswordResetOTP.objects.filter(email=email).latest("created_at")
+        if not record.is_verified:
+            raise serializers.ValidationError("OTP not verified, Please verify OTP first")
         
+        PasswordValidator()(new_password)
         user= User.objects.get(email=email)
         user.set_password(new_password)
         user.save()
 
-        # Optional: delete OTP records
+        # delete OTP records
         PasswordResetOTP.objects.filter(email=email).delete()
         return SuccessResponse(data={"message": "Password reset successful"}, status_code=200)()
 

@@ -135,10 +135,11 @@ def deploy(server_port):
         ip = "0.0.0.0"  # Default to all interfaces
         port = validate_port(server_port)
 
-    server_address = f"{ip}:{port}"
+    # server_address = f"{ip}:{port}"
 
     # Start Django server
-    django_server = run_command(f"python manage.py runserver {server_address}")
+    # django_server = run_command(f"python manage.py runserver {server_address}")
+    django_server= run_command(f"daphne -b {ip} -p {port} backend_bolt.asgi:application")
 
     time.sleep(3)  # Allow Django to start before launching Celery
 

@@ -15,6 +15,7 @@ class Command(BaseCommand):
 
         if User.objects.filter(is_staff=True).exists():
             self.stdout.write(self.style.WARNING('Superuser already exists'))
+            return
             # return "SuperAdmin already exists"
         User.objects.create_superuser(email=email, username=username, password=password)
         self.stdout.write(self.style.SUCCESS('Superuser created successfully'))

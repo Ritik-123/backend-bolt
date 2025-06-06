@@ -42,6 +42,38 @@ class UserListSerializer(serializers.ModelSerializer):
         fields= ['id', 'username', 'email', 'is_active']
 
 
+class VerifyOTPSerializer(serializers.ModelSerializer):
+    """
+    **Serializer used to verify OTP.**
+    """
+    email = serializers.EmailField(required=True, validators=[requiredEmail, userExistEmail])
+    otp = serializers.CharField(required=True, min_length=6, max_length=6)
+
+    class Meta:
+        model= PasswordResetOTP
+        fields = ['email', 'otp']
+
+    def validate(self, data):
+        record = PasswordResetOTP.objects.filter(email= data.get('email'), otp= data.get('otp')).first()
+        if not record:
+            raise NotFound("OTP is not register for this email, please register first")
+
+        if record.is_expired():
+            record.delete()
+            raise serializers.ValidationError("OTP has expired")
+        
+    def update(self, instance):
+        """
+        **Update the OTP record to mark it as verified.**
+        """
+        instance.is_verified = True
+        instance.save()
+        return instance
+    
+
+
+    
+
 # Serializer used in kafka consumer
 
 class SensorDataSerializer(serializers.ModelSerializer):

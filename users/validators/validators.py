@@ -2,7 +2,20 @@ from users.models import User
 import re
 from rest_framework import serializers
 from rest_framework.exceptions import NotFound
+from users.models import PasswordResetOTP
+from datetime import timedelta
+from django.utils import timezone
 
+
+
+
+def userExistEmail(email):
+    if not User.objects.filter(email= email).exists():
+        raise NotFound(f'User not found with email : {email}')
+
+def requiredEmail(email):
+    if not email:
+        raise serializers.ValidationError('Email is required')
 
 
 class EmailValidators():
@@ -171,18 +184,27 @@ class UidValidator:
     def __call__(self, uid):
         self.userExistUid(uid)
 
-
 class ForgotPasswordEmailValidator:
     """
     **Used to check the email is exists or not.**\n
     Input:
         email : str type. 
     """
+    
+    def existingOTP(self, email):
+        # existing_otp = PasswordResetOTP.objects.filter(email=email).order_by("-created_at").first()
+        existing_otp = PasswordResetOTP.objects.filter(email=email).first()
 
-    def userExistEmail(self, email):
-        if not User.objects.filter(email= email).exists():
-            raise NotFound(f'User not found with email : {email}')
-        
+        if existing_otp:
+            expiry_time = existing_otp.created_at + timedelta(minutes=10)
+            if timezone.now() < expiry_time:
+                raise serializers.ValidationError("OTP already sent, please check your email")
+            else:
+                existing_otp.delete()
+    
     def __call__(self, email):
-        self.userExistEmail(email)
-        
+        # Check if email is provided and exists in the database
+        requiredEmail(email)
+        userExistEmail(email)
+        # Check if an existing OTP is present and not expired
+        self.existingOTP(email)

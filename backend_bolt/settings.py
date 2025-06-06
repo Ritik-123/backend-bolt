@@ -23,6 +23,8 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
 # Application definition
 
 INSTALLED_APPS = [
+    'channels',
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -42,13 +44,14 @@ INSTALLED_APPS += PROJECT_APPS
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'middleware.loggingmiddleware.LogRestMiddleware',
+    # 'middleware.loggingmiddleware.LogRestMiddleware',
 ]
 
 ROOT_URLCONF = 'backend_bolt.urls'
@@ -71,8 +74,8 @@ TEMPLATES = [
 
 AUTH_USER_MODEL= 'users.User'
 
-WSGI_APPLICATION = 'backend_bolt.wsgi.application'
-
+# WSGI_APPLICATION = 'backend_bolt.wsgi.application'
+ASGI_APPLICATION = 'backend_bolt.asgi.application'
 
 # Database
 DB_HOST = os.environ.get("DB_HOST")
@@ -128,8 +131,8 @@ AUTH_PASSWORD_VALIDATORS = [
 
 DRF_STANDARDIZED_ERRORS = {
     "ENABLE_IN_DEBUG_FOR_UNHANDLED_EXCEPTIONS": True,
-    # "EXCEPTION_HANDLER_CLASS": "exception_handling.exception_formatter.CustomExceptionHandler",
-    # "EXCEPTION_FORMATTER_CLASS": "exception_handling.exception_formatter.CustomExceptionFormatter",
+    "EXCEPTION_HANDLER_CLASS": "exception_handling.exception_formatter.CustomExceptionHandler",
+    "EXCEPTION_FORMATTER_CLASS": "exception_handling.exception_formatter.CustomExceptionFormatter",
 }
 
 
@@ -157,6 +160,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT= BASE_DIR / 'staticfiles'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -193,6 +197,19 @@ CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 CELERY_BEAT_SYNC_ON_STARTUP = False
+
+# channel layer
+# ASGI_APPLICATION= "myproject.asgi.application"
+CHANNEL_LAYERS= {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        }
+    }
+}
+
+CORS_ORIGIN_ALLOW_ALL = True
 
 # LOG_DIR = os.path.join(BASE_DIR, 'logs')
 # ARC_DIR= os.path.join(BASE_DIR, 'archive')
