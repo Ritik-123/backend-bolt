@@ -75,8 +75,6 @@ class UserView(APIView):
         User.objects.filter(id= id).delete()
         return SuccessResponse(status_code= 200, data= {'message': 'User delete successfully'})()
 
-        
-
 class UserListView(APIView):
 
     """
@@ -119,9 +117,12 @@ class VerifyOTPView(APIView):
 
         serializer= VerifyOTPSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
-            CheckUserPermission()(request.user, User.objects.get(email=serializer.validated_data.get('email').id))
+            email= serializer.data.get('email')
+            user= User.objects.filter(email=email).first()
+            CheckUserPermission()(request.user, user.id)
             # Update the OTP record to mark it as verified
-            serializer.update(instance=serializer.instance)
+            instance= PasswordResetOTP.objects.filter(email=email).first()
+            serializer.update(instance)
         else:
             logger.info(f"OTP verification failed: {serializer.errors}")
             raise serializers.ValidationError('OTP verification failed')
@@ -133,6 +134,7 @@ class ResetPasswordView(APIView):
     """
     **API is used to reset password.**\n
     """
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         email = request.data.get("email")
@@ -144,7 +146,10 @@ class ResetPasswordView(APIView):
         # ForgotPasswordEmailValidator()(email)
         # Check if OTP was verified
         # record = PasswordResetOTP.objects.filter(email=email, is_verified=True).latest("created_at")
-        record = PasswordResetOTP.objects.filter(email=email).latest("created_at")
+        # record = PasswordResetOTP.objects.filter(email=email).latest("created_at")
+        record = PasswordResetOTP.objects.filter(email=email).first()
+        if not record:
+            raise NotFound("OTP is not registered for this email, please register first")
         if not record.is_verified:
             raise serializers.ValidationError("OTP not verified, Please verify OTP first")
         
@@ -164,6 +169,7 @@ class SensorDataView(APIView):
     """
     **API used to get the sensor data.**\n
     """
+    permission_classes = [IsAdminUser]
     
     def get(self, request):
         data = SensorData.objects.all().order_by('-timestamp')[:100]

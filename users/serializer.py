@@ -46,21 +46,35 @@ class VerifyOTPSerializer(serializers.ModelSerializer):
     """
     **Serializer used to verify OTP.**
     """
-    email = serializers.EmailField(required=True, validators=[requiredEmail, userExistEmail])
-    otp = serializers.CharField(required=True, min_length=6, max_length=6)
+    email = serializers.EmailField(required=True, validators=[userExistEmail], 
+                                   error_messages={
+                                        'required': 'Email is required',
+                                        'invalid': 'Invalid email format'
+                                    })
+    otp = serializers.CharField(required=True, min_length=6, max_length=6,
+                                error_messages={
+                                    'required': 'OTP is required',
+                                    'min_length': 'OTP must be exactly 6 characters long',
+                                    'max_length': 'OTP must be exactly 6 characters long'
+                                })
 
     class Meta:
         model= PasswordResetOTP
         fields = ['email', 'otp']
 
     def validate(self, data):
-        record = PasswordResetOTP.objects.filter(email= data.get('email'), otp= data.get('otp')).first()
+        record = PasswordResetOTP.objects.filter(email= data.get('email')).first()
         if not record:
             raise NotFound("OTP is not register for this email, please register first")
+
+        if record.otp != data.get('otp'):
+            raise serializers.ValidationError("Invalid OTP")
 
         if record.is_expired():
             record.delete()
             raise serializers.ValidationError("OTP has expired")
+        
+        return data
         
     def update(self, instance):
         """
