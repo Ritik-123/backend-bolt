@@ -45,6 +45,65 @@ class SensorData(models.Model):
 
 
 
+# class Role(models.Model):
+#     """
+#     Table stores all the role information.
+#     """
+#     id= models.AutoField(primary_key= True)
+#     rid= models.UUIDField(default= uuid.uuid4, editable= False, unique= True)
+#     name= models.CharField(max_length= 100, unique= True, blank= True, null= True)
+#     is_staff= models.BooleanField(default= False)
+#     description= models.CharField(max_length= 255, null = True, blank= True)
+#     level= models.IntegerField(null= True, blank= True)
+#     reports_to= models.ForeignKey('self', on_delete= models.CASCADE, related_name="role_reports_to", to_field= 'rid', blank= True, null= True)
+#     created_by= models.ForeignKey('self', on_delete= models.CASCADE, related_name="role_created_by", to_field= 'rid', blank= True, null= True)
+#     created_on= models.DateTimeField(auto_now_add= True, editable= False, null= True, blank= True)
+#     updated_on= models.DateTimeField(auto_now= True, null= True, blank= True)
+
+#     objects= RoleManager()
+    
+#     class Meta:
+#         db_table= 'fuzzer_role'
+
+#     def __str__(self):
+#         return self.name
+
+# class Permission(models.Model):
+#     """
+#     Table stores all the Permission static data.
+#     """
+#     id= models.AutoField(primary_key= True)
+#     permid= models.UUIDField(default= uuid.uuid4, editable= False, unique= True)
+#     name= models.CharField(max_length= 100, blank= True, null= True)
+#     codename= models.CharField(max_length= 200, blank= True, null= True)
+
+#     objects= PermissionsManager()
+
+#     class Meta:
+#         db_table= 'fuzzer_permission'
+
+#     def __str__(self):
+#         return self.codename
+
+# class RolePermission(models.Model):
+#     """
+#     Table stores : Permissions assign to Role.
+#     """
+#     id= models.AutoField(primary_key= True)
+#     rpid= models.UUIDField(default= uuid.uuid4, editable= False, unique= True)
+#     permid= models.ForeignKey(Permission, to_field= 'permid', on_delete= models.CASCADE, blank= True, null= True)
+#     rid= models.ForeignKey(Role, to_field= 'rid', on_delete= models.CASCADE, null= True, blank= True)
+
+#     objects= RolePermissionsManager()
+
+#     class Meta:
+#         db_table= 'fuzzer_role_permission'
+
+#     def __str__(self):
+#         return self.id
+
+
+
 class UserTempdata(TimeStampedModel):
     """
     Temporary data model for storing user information before final registration.

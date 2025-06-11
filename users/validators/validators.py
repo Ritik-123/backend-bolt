@@ -184,14 +184,14 @@ class UidValidator:
     def __call__(self, uid):
         self.userExistUid(uid)
 
-class ForgotPasswordEmailValidator:
+class ChkExistingOTP:
     """
     **Used to check the email is exists or not.**\n
     Input:
         email : str type. 
     """
-    
-    def existingOTP(self, email):
+    @staticmethod
+    def existingOTP(email):
         # existing_otp = PasswordResetOTP.objects.filter(email=email).order_by("-created_at").first()
         existing_otp = PasswordResetOTP.objects.filter(email=email).first()
 
@@ -201,10 +201,31 @@ class ForgotPasswordEmailValidator:
                 raise serializers.ValidationError("OTP already sent, please check your email")
             else:
                 existing_otp.delete()
+
+class OTPValidator:
+    """
+    **Used to check the record is exists or not.**\n
+
+    Input:
+        email : str type. 
+    """
+    
+    def chkRecord(self, email):
+        """
+        **Used to check the otp exists with given email.**\n
+        Also checks if otp is expired or not, if expired then delete the record.\n
+        """
+        record = PasswordResetOTP.objects.filter(email=email).first()
+        if not record:
+            raise NotFound("OTP is not registered for this email, please register first")
+        
+        if record.is_expired():
+            record.delete()
+            raise serializers.ValidationError("OTP has expired")
+        
+        if not record.is_verified:
+            raise serializers.ValidationError("OTP not verified, Please verify OTP first")
+         
     
     def __call__(self, email):
-        # Check if email is provided and exists in the database
-        requiredEmail(email)
-        userExistEmail(email)
-        # Check if an existing OTP is present and not expired
-        self.existingOTP(email)
+        self.chkRecord(email)

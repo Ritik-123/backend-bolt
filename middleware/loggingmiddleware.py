@@ -100,7 +100,8 @@ class LogRestMiddleware(MiddlewareMixin):
         query_params = str(["%s: %s" %(k,v) for k, v in request.GET.items()])
         query_params = query_params if query_params else ''
 
-        _logger.debug(f"{ip} {user} {method} {request_path,} {query_params}")
+        _logger.info(f"Log-Request: {ip} {user} {method} {request_path,} {query_params}")
+        # _logger.debug(f"{ip} {user} {method} {request_path,} {query_params}")
         # _logger.debug("(%s) [%s] %s %s", ip, method, request_path, query_params)
 
     def _log_response(self, request, response):
@@ -112,14 +113,14 @@ class LogRestMiddleware(MiddlewareMixin):
             
         else:
             ip = request.META.get('REMOTE_ADDR')
-        token = request.META.get('HTTP_AUTHORIZATION')
-        if token!=None :
-            uuid = get_uuid(str(token[7::]))
-        else:
-            uuid = "AnonymousUser"
+        # token = request.META.get('HTTP_AUTHORIZATION')
+        # if token!=None:
+        #     uuid = get_uuid(str(token[7::]))
+        # else:
+        #     uuid = "AnonymousUser"
         user_agent = request.META.get('HTTP_USER_AGENT')
         http_protocol = request.META.get('SERVER_PROTOCOL')
-        user = uuid
+        user = getattr(request.user, 'username', 'AnonymousUser') # uuid
         method = str(getattr(request, 'method', '')).upper()
         status_code = str(getattr(response, 'status_code', ''))
         status_text = str(getattr(response, 'status_text', ''))
@@ -127,7 +128,7 @@ class LogRestMiddleware(MiddlewareMixin):
         # size = str(len(response.content))
         f = ContextFilter(ip,user)
         _logger.addFilter(f)
-        _logger.info(f"{method} {request_path,} {http_protocol} {status_code} {status_text} {user_agent}") #{size}
+        _logger.info(f"Log-Response: {method} {request_path,} {http_protocol} {status_code} {status_text} {user_agent}") #{size}
         # _logger.info("\"%s %s %s \"- %s (%s / %s) (%s)",method, request_path,http_protocol ,status_code, status_text, size,user_agent)
 
     def process_response(self, request, response):
@@ -135,7 +136,7 @@ class LogRestMiddleware(MiddlewareMixin):
         self._log_request(request)
         self._log_response(request, response)
         return response# Getting the logger defined in customlog.py
-# _logger = logging.getLogger('api_fuzzer')
+
 
     def __call__(self, request):
         """Method call when the middleware is used in the `MIDDLEWARE` option in the settings """

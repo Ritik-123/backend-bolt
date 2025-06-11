@@ -11,7 +11,8 @@ class UserSerializer(serializers.ModelSerializer):
     """
     email= serializers.EmailField(required= True, validators= [EmailValidators()])
     username= serializers.CharField(required= True, min_length= 4, max_length= 50, validators= [NameValidator()])
-    password= serializers.CharField(write_only= True, required= True, min_length= 4, max_length= 50, validators= [PasswordValidator()])
+    password= serializers.CharField(write_only= True, required= True, min_length= 4, max_length= 50, 
+                                    validators= [PasswordValidator()])
 
     class Meta:
         model= User

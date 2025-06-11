@@ -20,6 +20,29 @@ import logging
 logger= logging.getLogger('server')
 logger.propagate = False
 
+
+class CreateUserView(APIView):
+    """
+    **API used to create user.**\n
+    It is only for admin user.
+    """
+    permission_classes = [IsAdminUser]
+
+    @extend_schema(
+        responses={201: UserSerializer}
+    )
+    def post(self, request):
+        """
+        **API used to create user.**
+        """
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid(raise_exception= True):
+            serializer.save()
+            return SuccessResponse(status_code=201, data=serializer.data)()
+        logger.info(f"User creation failed: {serializer.errors}")
+        raise serializers.ValidationError('User creation failed')
+    
+
 class UserView(APIView):
     """
     **API used to perform crud operations of user.**
@@ -37,16 +60,7 @@ class UserView(APIView):
         serializer = UserSerializer(request.user)
         return SuccessResponse(status_code=200, data=serializer.data)()
 
-    def post(self, request):
-        """
-        **API used to create user.**
-        """
-        serializer = UserSerializer(data=request.data)
-        if serializer.is_valid(raise_exception= True):
-            serializer.save()
-            return SuccessResponse(status_code=201, data=serializer.data)()
-        logger.info(f"User creation failed: {serializer.errors}")
-        raise serializers.ValidationError('User creation failed')
+    
         
     def put(self, request, id):
         """
@@ -97,8 +111,10 @@ class ForgotPasswordView(APIView):
 
     def post(self, request):
         email = request.data.get("email")
-        ForgotPasswordEmailValidator()(email)
+        requiredEmail(email)
+        userExistEmail(email)
         CheckUserPermission()(request.user, User.objects.get(email=email).id)
+        ChkExistingOTP.existingOTP(email)
         otp= generate_otp()
         PasswordResetOTP.objects.create(email=email, otp=otp)
         username= User.objects.get(email=email).username
@@ -139,25 +155,15 @@ class ResetPasswordView(APIView):
     def post(self, request):
         email = request.data.get("email")
         new_password = request.data.get("new_password")
-
         if not email or not new_password:
             raise serializers.ValidationError("Email and new password both are required")
         userExistEmail(email)
-        # ForgotPasswordEmailValidator()(email)
-        # Check if OTP was verified
-        # record = PasswordResetOTP.objects.filter(email=email, is_verified=True).latest("created_at")
-        # record = PasswordResetOTP.objects.filter(email=email).latest("created_at")
-        record = PasswordResetOTP.objects.filter(email=email).first()
-        if not record:
-            raise NotFound("OTP is not registered for this email, please register first")
-        if not record.is_verified:
-            raise serializers.ValidationError("OTP not verified, Please verify OTP first")
-        
+        CheckUserPermission()(request.user, User.objects.get(email=email).id)
+        OTPValidator()(email)
         PasswordValidator()(new_password)
         user= User.objects.get(email=email)
         user.set_password(new_password)
         user.save()
-
         # delete OTP records
         PasswordResetOTP.objects.filter(email=email).delete()
         return SuccessResponse(data={"message": "Password reset successful"}, status_code=200)()

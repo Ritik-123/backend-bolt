@@ -11,7 +11,7 @@ urlpatterns= [
     
     # url is used to create a user.
     path('create-user', 
-         UserView.as_view(http_method_names= ['post']), 
+         CreateUserView.as_view(http_method_names= ['post']), 
          name= 'create-user'),
     
     # url is used to return all the users data.
