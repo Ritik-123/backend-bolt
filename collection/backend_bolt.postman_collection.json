@@ -1,0 +1,371 @@
+{
+	"info": {
+		"_postman_id": "619f7b66-40f6-4b47-b797-f153d4196287",
+		"name": "backend_bolt",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "31632339"
+	},
+	"item": [
+		{
+			"name": "Login",
+			"item": [
+				{
+					"name": "access_token",
+					"item": [
+						{
+							"name": "login",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const body = pm.response.json();",
+											"pm.collectionVariables.set(\"refresh\",body.refresh);",
+											"pm.collectionVariables.set(\"access\", body.access);"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"username\": \"admin\",\n    // \"username\": \"userone\",\n    \"password\": \"123\"\n    // \"password\": \"Default2!\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/token",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"token"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "refresh-token",
+					"item": [
+						{
+							"name": "refresh-token",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const body = pm.response.json();",
+											"pm.collectionVariables.set(\"refresh\",body.refresh);",
+											"pm.collectionVariables.set(\"access\", body.access);"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"refresh\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc1OTgyNzM3NCwiaWF0IjoxNzQ5NDU5Mzc0LCJqdGkiOiIyMDk5ODliZTkzMWE0NzA0YjIyN2Q5YmQ3MGMxYzMxZSIsInVzZXJfaWQiOiI5ZTAwOGE0ZS03MzViLTRiOWItOTI4OS05MDg3MThkMjljODMifQ.8DFRSlUjMOPrNuiXOxUmnW09c_iB8XFKD3bw7gjarLc\"\n    \n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/token/refresh",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"token",
+										"refresh"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "users",
+			"item": [
+				{
+					"name": "create-user",
+					"item": [
+						{
+							"name": "create-user",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{access}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"userthree@gmail.com\",\n    \"username\": \"userthree\",\n    \"password\": \"Default1!\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/create-user",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"create-user"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get-single-user",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{access}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/user/:id",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"user",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "c4434092-b741-4147-8089-4ed70125df26"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "users-list",
+					"item": [
+						{
+							"name": "users-list",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{access}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/users",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"users"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "forgot-password",
+					"item": [
+						{
+							"name": "send-email",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{access}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"userone@gmail.com\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/forgot-password",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"forgot-password"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Verify-otp",
+					"item": [
+						{
+							"name": "verify-otp",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{access}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"userone@gmail.com\",\n    \"otp\": \"626726\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/verify-otp",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"verify-otp"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Reset-password",
+					"item": [
+						{
+							"name": "reset-pwd",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{access}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"userone@gmail.com\",\n    \"new_password\": \"Default2!\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/reset-password",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"reset-password"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "websockets",
+			"item": [
+				{
+					"name": "chat-application",
+					"item": [
+						{
+							"name": "New Request",
+							"request": {
+								"method": "GET",
+								"header": []
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "refresh",
+			"value": ""
+		},
+		{
+			"key": "access",
+			"value": ""
+		}
+	]
+}
