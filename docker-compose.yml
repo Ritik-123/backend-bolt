@@ -5,6 +5,11 @@ services:
     container_name: redis
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
   kafka:
     image: apache/kafka:latest
@@ -74,12 +79,15 @@ services:
     - CELERY_BROKER_URL=redis://redis:6379/0
     # for kafka bootstrap servers
     - BOOTSTRAP_SERVERS=kafka:9092
+    - REDIS_HOST=redis
 
     build: ./
     container_name: users
     ports:
       - 8000:8000
     depends_on:
+      redis:
+        condition: service_healthy
       db:
         condition: service_healthy
     stdin_open: true
