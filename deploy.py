@@ -139,7 +139,8 @@ def deploy(server_port):
 
     # Start Django server
     # django_server = run_command(f"python manage.py runserver {server_address}")
-    django_server= run_command(f"daphne -b {ip} -p {port} backend_bolt.asgi:application")
+    # django_server= run_command(f"daphne -b {ip} -p {port} backend_bolt.asgi:application")
+    django_server= run_command(f"uvicorn --ws auto --workers 4 --reload --host {ip} --port {port} backend_bolt.asgi:application")
 
     time.sleep(3)  # Allow Django to start before launching Celery
 

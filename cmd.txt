@@ -1,0 +1,48 @@
+## Inside /kafka folder 
+
+
+KAFKA_CLUSTER_ID="$(bin/kafka-storage.sh random-uuid)"	    
+echo "Cluster ID: $KAFKA_CLUSTER_ID"
+
+
+./bin/kafka-storage.sh format --standalone -t $KAFKA_CLUSTER_ID -c config/server.properties
+
+#Start the Kafka Server
+./bin/kafka-server-start.sh config/server.properties
+
+
+#Access Kafka container:
+docker exec -it <kafka_container_id> /bin/bash
+
+# Locate Kafka binaries:
+cd /opt/kafka/bin # cd kafka_2.13-4.0.0
+
+# create topic 
+./bin/kafka-topics.sh --create --topic iot_bulk_data --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1
+
+# Run Kafka Producer
+./bin/kafka-console-producer.sh --topic iot_bulk_data --bootstrap-server localhost:9092
+
+# Run Kafka Consumer:
+docker exec -it <kafka_container_id> /bin/bash
+cd /opt/kafka/bin
+./kafka-console-consumer.sh --topic iot_bulk_data --bootstrap-server localhost:9092 --from-beginning
+
+
+## Creating a Topic with Multiple Partitions: 
+docker exec -it <kafka_container_id> /bin/bash
+cd /opt/kafka/bin
+./kafka-topics.sh --create --topic iot_bulk_data --bootstrap-server localhost:9092 --replication-factor 1 --partitions 3 # it will throw error if topic is already there
+
+
+
+#If you want to wipe everything (topics, logs, etc.) and start from scratch:
+# 1. Remove existing logs # Format Log Directories
+rm -rf /tmp/kraft-combined-logs
+
+# This won't kill any processes but will free up RAM used for file system caching.
+sudo sh -c "sync; echo 3 > /proc/sys/vm/drop_caches"
+
+
+docker exec -it kafka kafka-topics.sh --create --topic iot_bulk_data --bootstrap-server kafka:9092 --partitions 3 --replication-factor 1
+
