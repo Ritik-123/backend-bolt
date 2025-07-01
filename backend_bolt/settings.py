@@ -23,6 +23,7 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
 # Application definition
 
 INSTALLED_APPS = [
+    'uvicorn',
     'channels',
     'daphne',
     'django.contrib.admin',
@@ -51,7 +52,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'middleware.loggingmiddleware.LogRestMiddleware',
+    # 'middleware.loggingmiddleware.LogRestMiddleware',
 ]
 
 ROOT_URLCONF = 'backend_bolt.urls'
