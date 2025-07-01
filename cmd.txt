@@ -46,3 +46,10 @@ sudo sh -c "sync; echo 3 > /proc/sys/vm/drop_caches"
 
 docker exec -it kafka kafka-topics.sh --create --topic iot_bulk_data --bootstrap-server kafka:9092 --partitions 3 --replication-factor 1
 
+# run using docker:
+
+  . docker-compose up
+  . docker-compose down
+  . docker ps -a 
+  . docker image ls
+  . docker exec -it <users> bash
