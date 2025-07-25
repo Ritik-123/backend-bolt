@@ -4,6 +4,12 @@ from . import consumers
 websocket_urlpatterns=[
     # re_path(r"ws/chat/(?P<roomName>\w+)/$", consumers.ChatConsumer.as_asgi()),
     
+    # Url used to get, create, update and delete a product.
+    path('ws/products', consumers.ProductConsumer.as_asgi()),
+
+    # Url is used to get, create, update and delete a category.
+    # path('ws/categories', consumers.CategoryConsumer.as_asgi()),
+
     #---usign json websocket consumer-----
     path('ws/jwsc', consumers.MyJsonWebsocketConsumer.as_asgi()),
 

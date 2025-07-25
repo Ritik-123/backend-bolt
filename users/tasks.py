@@ -2,6 +2,8 @@ import logging.config, sys
 import os, time, shutil, zipfile, logging, re
 from django.conf import settings
 from celery import shared_task
+from django.core.mail import send_mail
+
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -13,6 +15,10 @@ os.makedirs(LOG_DIR, exist_ok=True)
 os.makedirs(ARCHIVE_DIR, exist_ok=True)
 
 LOGGERS = ["access", "server"]
+
+
+logger= logging.getLogger('server')
+logger.propagate = False
 
 @shared_task
 def trigger_log_entry():
@@ -54,3 +60,22 @@ def move_rotated_logs(log_prefixes=("access", "server")):
         for file in matched_files:
             src, dest = os.path.join(log_dir, file), os.path.join(archive_folder, file)
             shutil.move(src, dest)
+
+
+# Function to send email notifications
+@shared_task
+def order_status_email(**kwargs):
+    """
+    Function to send order status update email.
+    """
+    id= kwargs.get('id')
+    username= kwargs.get('username')
+    order_status= kwargs.get('order_status')
+    email= kwargs.get('email')
+    subject = f"Your order {id} status has changed"
+    message = f"Hi {username},\n\nYour order status is now: {order_status}"
+    send_mail(subject, message, 'noreply@teambolt.com', [email], fail_silently=False)
+    if send_mail:
+        logger.info(f"Order status email sent to {email} for order {id}")
+    else:
+         logger.error(f"Failed to send order status email to {email} for order {id}")

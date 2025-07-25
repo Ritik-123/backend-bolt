@@ -2,6 +2,10 @@ from pathlib import Path
 import os
 from datetime import timedelta
 
+import dotenv
+dotenv.load_dotenv()
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -17,12 +21,14 @@ SECRET_KEY= os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
-
+ALLOWED_HOSTS= ['*']
+# CORS_ALLOWED_ORIGINS = ['http://localhost:5173', 'http://127.0.0.1:5173', 'http://0.0.0.0:5173']
+CORS_ORIGIN_ALLOW_ALL = True
 
 # Application definition
 
 INSTALLED_APPS = [
+    'corsheaders',
     'uvicorn',
     'channels',
     'daphne',
@@ -44,6 +50,7 @@ PROJECT_APPS = ['users']
 INSTALLED_APPS += PROJECT_APPS
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -142,6 +149,8 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10
 }
 
 
@@ -210,8 +219,6 @@ CHANNEL_LAYERS= {
         }
     }
 }
-
-CORS_ORIGIN_ALLOW_ALL = True
 
 # LOG_DIR = os.path.join(BASE_DIR, 'logs')
 # ARC_DIR= os.path.join(BASE_DIR, 'archive')

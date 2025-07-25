@@ -25,7 +25,7 @@ def send_otp_email(username, email, otp):
                 Thank you,
                 Backend Bolt Team
             """
-    from_email = 'no-reply@example.com'
+    from_email = 'no-reply@teambolt.com'
     recipient_list = [email]
     send_mail(subject, message, from_email, recipient_list)
     if send_mail:

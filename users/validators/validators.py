@@ -229,3 +229,119 @@ class OTPValidator:
     
     def __call__(self, email):
         self.chkRecord(email)
+
+
+class CategoryValidator:
+
+    # Error messages for specific validation failures
+    MIN_LENGTH_ERROR = "The username must be at least 5 characters long and maximum 20 characters long."
+    NAME_ERROR = "The username may only contain alphanumeric characters (a-z, A-Z, 0-9), underscores (_),and hyphens (-)."
+    # SINGLE_SPACE_ERROR = "The usename must not contain whitespace character."
+    SINGLE_SPACE_ERROR = "The username must not contain leading or trailing whitespace characters."
+    START_CHARACTER_ERROR = "The username must start with a letter (a-z or A-Z)."
+    END_CHARACTER_ERROR = "The username must not end with an underscore, hyphen, or special character."
+    
+    def __init__(self):
+        self.rules = [
+        ( re.compile('^.{3,20}$'),self.MIN_LENGTH_ERROR),
+        ( re.compile('^[a-zA-Z0-9_-]+$'),self.NAME_ERROR),
+        ( re.compile('^[a-zA-Z]'),self.START_CHARACTER_ERROR),        
+        ( re.compile(r'^.*[^\s~!@=#$%^&*()_+{}:"<>?|\\]$'),self.END_CHARACTER_ERROR),
+        (re.compile(r'^\S.*\S$|^\S$'), self.SINGLE_SPACE_ERROR),
+        
+        ]
+    def validate(self,name: str) -> None:
+        """
+        Validates the provided username against the defined rules.
+
+        Parameters
+        ----------
+        name : str
+            The name to validate.
+
+        Raises
+        ------
+        ValidationError
+            If the name fails any of the validation criteria.
+        """
+        if User.objects.usernameExists(name):
+            raise serializers.ValidationError('Username already exists')
+        for regex, error_message in self.rules:
+            test = regex.search(name)
+            if not regex.search(name):
+                raise serializers.ValidationError(error_message)
+
+
+    def __call__(self, name: str) -> None:
+        """
+        Validates the provided name to ensure it meets the specified criteria.
+
+        Parameters
+        ----------
+        name : str
+            The name to validate.
+
+        Raises
+        ------
+        serializers.ValidationError
+            If the name does not meet the specified criteria.
+        """
+        self.validate(name)
+
+
+class ProductValidator:
+
+    # Error messages for specific validation failures
+    # MIN_LENGTH_ERROR = "The username must be at least 5 characters long and maximum 20 characters long."
+    NAME_ERROR = "The username may only contain alphanumeric characters (a-z, A-Z, 0-9), underscores (_),and hyphens (-)."
+    # SINGLE_SPACE_ERROR = "The usename must not contain whitespace character."
+    SINGLE_SPACE_ERROR = "The username must not contain leading or trailing whitespace characters."
+    START_CHARACTER_ERROR = "The username must start with a letter (a-z or A-Z)."
+    # END_CHARACTER_ERROR = "The username must not end with an underscore, hyphen, or special character."
+    
+    def __init__(self):
+        self.rules = [
+        # ( re.compile('^.{5,20}$'),self.MIN_LENGTH_ERROR),
+        ( re.compile('^[a-zA-Z0-9_-]+$'),self.NAME_ERROR),
+        ( re.compile('^[a-zA-Z]'),self.START_CHARACTER_ERROR),        
+        # ( re.compile(r'^.*[^\s~!@=#$%^&*()_+{}:"<>?|\\]$'),self.END_CHARACTER_ERROR),
+        (re.compile(r'^\S.*\S$|^\S$'), self.SINGLE_SPACE_ERROR),
+        
+        ]
+    def validate(self,name: str) -> None:
+        """
+        Validates the provided username against the defined rules.
+
+        Parameters
+        ----------
+        name : str
+            The name to validate.
+
+        Raises
+        ------
+        ValidationError
+            If the name fails any of the validation criteria.
+        """
+        if User.objects.usernameExists(name):
+            raise serializers.ValidationError('Username already exists')
+        for regex, error_message in self.rules:
+            test = regex.search(name)
+            if not regex.search(name):
+                raise serializers.ValidationError(error_message)
+
+
+    def __call__(self, name: str) -> None:
+        """
+        Validates the provided name to ensure it meets the specified criteria.
+
+        Parameters
+        ----------
+        name : str
+            The name to validate.
+
+        Raises
+        ------
+        serializers.ValidationError
+            If the name does not meet the specified criteria.
+        """
+        self.validate(name)

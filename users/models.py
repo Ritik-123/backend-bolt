@@ -13,7 +13,9 @@ class User(AbstractUser, TimeStampedModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(unique= True)
     username= models.CharField(max_length=150, unique=True)    
-    password= models.CharField()    
+    password= models.CharField(max_length=128)    
+    phone_no= models.IntegerField(null= True, blank=True)
+    address= models.CharField(max_length=500, null=True, blank=True)
 
     objects= UserManager()
 
@@ -23,7 +25,6 @@ class User(AbstractUser, TimeStampedModel):
     class Meta:
         db_table= 'users'
     
-
 class PasswordResetOTP(models.Model):
     email = models.EmailField()
     otp = models.CharField(max_length=6)
@@ -32,6 +33,81 @@ class PasswordResetOTP(models.Model):
 
     def is_expired(self):
         return timezone.now() > self.created_at + timedelta(minutes=10)
+
+
+class Category(TimeStampedModel):
+    """
+    Model to store product categories.
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=255, unique=True)
+    description = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.name
+    
+    class Meta:
+        db_table = 'category'
+        
+
+class Product(TimeStampedModel):
+    """
+    Model to store product information.
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=255, unique= True)
+    description = models.TextField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    stock = models.PositiveIntegerField()
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products')
+
+    def __str__(self):
+        return self.name
+    
+    class Meta:
+        db_table = 'product'
+    
+class OrderStatus(models.TextChoices):
+    PENDING = 'pending'
+    SHIPPED = 'shipped'
+    DELIVERED = 'delivered'
+
+class Order(TimeStampedModel):
+    """
+    Model to store order information.
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
+    products = models.ManyToManyField(Product, related_name='products_ordered')
+    total_price= models.DecimalField(max_digits=10, decimal_places=2)
+    status = models.CharField(
+        max_length=20,
+        choices=OrderStatus.choices,
+        default=OrderStatus.PENDING
+    )
+
+    def __str__(self):
+        return f"Order {self.id} by {self.user.email}"
+    
+    class Meta:
+        db_table = 'order'
+        
+
+class Cart(TimeStampedModel):
+    """
+    Model to store user's cart information.
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='carts')
+    product = models.ManyToManyField(Product, related_name='products_in_cart')
+    total_price = models.DecimalField(max_digits=10, decimal_places=2)
+    stock= models.PositiveIntegerField()
+
+    def __str__(self):
+        return f"Cart {self.id} for {self.user.email}"
+    
+    class Meta:
+        db_table = 'cart'
 
 class SensorData(models.Model):
     device_id = models.CharField(max_length=50)
@@ -42,8 +118,10 @@ class SensorData(models.Model):
 
     def __str__(self):
         return f"SensorData(device_id={self.device_id}, temperature={self.temperature}, humidity={self.humidity})"
-
-
+    
+    class Meta:
+        db_table = 'sensor_data'
+        
 
 # class Role(models.Model):
 #     """

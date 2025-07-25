@@ -8,8 +8,35 @@ import asyncio
 from channels.db import database_sync_to_async
 from channels.generic.websocket import WebsocketConsumer, AsyncWebsocketConsumer, JsonWebsocketConsumer, AsyncJsonWebsocketConsumer
 
+from .models import Product
+from users.serializer import ProductSerializer
+from channels.db import database_sync_to_async
+
 logger= logging.getLogger('server')
 logger.propagate= False
+
+class ProductConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        await self.channel_layer.group_add("products", self.channel_name)
+        await self.accept()
+        # Send current product list
+        products = await self.get_all_products()
+        await self.send(text_data=json.dumps({"products": products}))
+
+    async def disconnect(self, close_code):
+        await self.channel_layer.group_discard("products", self.channel_name)
+
+    async def product_update(self, event):
+        # Send updated product list
+        products = await self.get_all_products()
+        await self.send(text_data=json.dumps({"products": products}))
+
+    @database_sync_to_async
+    def get_all_products(self):
+        products = Product.objects.all()
+        return ProductSerializer(products, many=True).data
+
+
 
 #------using json websocket consumer---------
 
