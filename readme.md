@@ -1,10 +1,14 @@
 Linux ubuntu 22.04 is required.
 
-Steps to Run application without docker. 
+# Steps to Run application without docker. 
 
 Python 3.10 or above versions.
 
 sudo apt install python3-pip -y
+
+Install git
+
+   . sudo apt install git -y
 
 sudo apt install postgresql (version should be >= 14)
    . inside this path /etc/postgresql/16/main
@@ -43,12 +47,19 @@ Run command:
 python3 deploy.py
 
 
-Steps to Run application using docker.
+# Steps to Run application using docker.
 
 Install docker engine:
 
   . Follow these steps mentioned in below url.:
   https://docs.docker.com/engine/install/ubuntu/
 
+Take clone: 
+   . git clone <url>
+
 Run command:
   . docker-compose up
+
+
+
+# Note : Please find the postman collection inside the collection folder.
