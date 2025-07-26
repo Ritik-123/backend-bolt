@@ -29,6 +29,7 @@ sudo systemctl enable pgbouncer.service
 
 
 Take clone: 
+   . Branch : master
    . git clone <url>
 
 create virtual environment using:
@@ -55,6 +56,7 @@ Install docker engine:
   https://docs.docker.com/engine/install/ubuntu/
 
 Take clone: 
+   . Branch : master
    . git clone <url>
 
 Run command:
